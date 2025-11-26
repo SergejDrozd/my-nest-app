@@ -1,0 +1,38 @@
+datasource db {
+  provider = "postgresql" // или mysql/sqlite
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String
+  email    String @unique
+  password String
+
+  // связь многие-ко-многим с Role (без references!)
+  roles Role[] @relation("UserRoles")
+
+  // обратная связь с Task
+  tasks Task[]
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  users User[] @relation("UserRoles")
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?   // теперь необязательное
+  completed   Boolean @default(false)
+  userId      Int
+  user        User @relation(fields: [userId], references: [id])
+}
+
